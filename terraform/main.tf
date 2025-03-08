@@ -11,7 +11,7 @@ terraform {
 
 # Configure the AWS Provider
 provider "aws" {
-  region = "us-west-2"
+  region = "us-east-2"
 }
 
 locals {
@@ -22,6 +22,13 @@ locals {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami
 data "aws_ami" "ubuntu" {
   # COMPLETE ME
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["packer-ansible-nginx"]
+  }
 }
 
 # Create a VPC
@@ -43,7 +50,7 @@ resource "aws_vpc" "web" {
 resource "aws_subnet" "web" {
   vpc_id                  = aws_vpc.web.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-west-2a"
+  availability_zone       = "us-east-2a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -61,7 +68,7 @@ resource "aws_internet_gateway" "web-gw" {
   }
 }
 
-# create route table for web VPC 
+# create route table for web VPC
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
 resource "aws_route_table" "web" {
   vpc_id = aws_vpc.web.id
@@ -150,4 +157,3 @@ output "instance_ip_addr" {
     "dns_name"  = aws_instance.web.public_dns
   }
 }
-
